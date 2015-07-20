@@ -36,6 +36,8 @@ import uuid
 from optparse import OptionParser
 
 #############################################################################
+#### Help functions to generate file name
+#############################################################################
 
 def string_to_md5(content):
     """Calculate the md5 hash of a string.
@@ -75,10 +77,17 @@ def get_short_fingerprint(length=6):
     #
     return get_fingerprint(md5=True)[-length:]
 
+
+
+
+#############################################################################
+#### Main Code
 #############################################################################
 
+
 # Your own Dropbox URL. No slash at the end.
-BASE_URL = 'http://dl.dropbox.com/u/144888'
+BASE_URL = 'http://dl.dropboxusercontent.com/u/13109947'
+
 # Your own Dropbox/Public folder in the local file system. No slash at the end.
 if get_short_fingerprint() in ('a804db', '91d6c2'):
     BASE_PATH = '/trash2/Dropbox/Public'
@@ -86,6 +95,9 @@ else:
     BASE_PATH = '{home}/Dropbox/Public'.format(home=os.path.expanduser("~"))
 
 
+#-----------------------------------------------
+# check that filename is a file not a directly
+#-----------------------------------------------
 def verify_file(abspath):
     """Verify if the entry exists and if it's a file (not a directory)."""
     if not os.path.isfile(abspath):
@@ -95,6 +107,9 @@ def verify_file(abspath):
     verify_dir(os.path.split(abspath)[0])
 
 
+#---------------------------------------------------
+# check that we are in the Public folder of DropBox
+#---------------------------------------------------
 def verify_dir(directory):
     """Verify if we are in the Dropbox/Public folder."""
     if "/Dropbox/Public" not in directory:
@@ -102,18 +117,28 @@ def verify_dir(directory):
         sys.exit(3)
 
 
+#---------------------------------------------------
+# Main workhorse
+#---------------------------------------------------
 def get_dropbox_link(abspath):
     """Get the public dropbox link of the file."""
     return abspath.replace(BASE_PATH, BASE_URL)
 
 
+
+
+#---------------------------------------------------
+# Entry point for a single file
+#---------------------------------------------------
 def process_file(file_name):
     """Process a single file."""
     f = os.path.abspath(file_name)
     verify_file(f)
     print(get_dropbox_link(f))
 
-
+#---------------------------------------------------
+# Entry point for the full directory
+#---------------------------------------------------
 def process_curr_dir():
     """Process all the files in the current directory."""
     cwd = os.getcwd()
@@ -124,6 +149,10 @@ def process_curr_dir():
             print(get_dropbox_link(f))
 
 
+
+#---------------------------------------------------
+# some more help functions
+#---------------------------------------------------
 def check_constants():
     """Remove end slash if necessary."""
     global BASE_URL, BASE_PATH
@@ -133,6 +162,9 @@ def check_constants():
         BASE_PATH = BASE_PATH[:-1]
 
 
+#---------------------------------------------------
+# Python plumbing
+#---------------------------------------------------
 def main():
     """Controller."""
 
